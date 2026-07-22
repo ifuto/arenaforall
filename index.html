@@ -1,488 +1,713 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rsift — World's First Native-Injection Mod Loader for Minecraft 1.21.11</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#fbfbfa">
+  <title>Rsift — ネイティブ Minecraft Mod ローダー</title>
+  <meta name="description" content="Rust で構築されたネイティブファーストの Minecraft Mod ローダー。RsGraphics により Sodium を超える描画最適化を目指します。">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;900&display=swap');
+:root{--ink:#121412;--muted:#68706b;--soft:#f4f5f2;--line:#dde1da;--lime:#b7f84c;--lime-deep:#86b83a;--black:#121412;--white:#fbfbfa;--mono:'DM Mono',monospace;--sans:Manrope,'Noto Sans JP',Arial,sans-serif}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--white);color:var(--ink);font-family:var(--sans);line-height:1.55}a{color:inherit;text-decoration:none}.site-line{height:5px;background:var(--lime)}.shell{width:min(1180px,calc(100% - 56px));margin:auto}.site-header{height:82px;display:flex;align-items:center;border-bottom:1px solid var(--line);background:rgba(251,251,250,.88);backdrop-filter:blur(14px);position:sticky;top:0;z-index:20}.nav-shell{display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;letter-spacing:-.08em}.brand-mark{width:28px;height:28px;display:grid;place-items:center;background:var(--ink);color:var(--lime);font:700 14px var(--mono);letter-spacing:0}.desktop-nav{display:flex;gap:30px;margin-left:auto;margin-right:34px}.desktop-nav a,.github{font:500 12px var(--mono);color:#5b625e}.desktop-nav a:hover,.github:hover{color:var(--ink)}.nav-right{display:flex;gap:18px;align-items:center}.button{display:inline-flex;gap:16px;align-items:center;justify-content:center;padding:14px 18px;border:1px solid var(--ink);background:var(--ink);color:var(--white);font:700 12px var(--sans);letter-spacing:.01em;transition:transform .2s ease,background .2s;position:relative}.button:hover{transform:translate(-3px,-3px);box-shadow:4px 4px 0 var(--lime)}.button b{font:700 17px var(--mono)}.button.small{padding:10px 14px;font-size:11px}.button:disabled,.button.is-disabled{opacity:.42;pointer-events:none;transform:none!important;box-shadow:none!important}.menu-toggle,.mobile-nav{display:none}.hero{min-height:680px;display:grid;grid-template-columns:1fr .92fr;gap:75px;align-items:center;padding:84px 0 68px}.eyebrow{font:500 10px var(--mono);letter-spacing:.14em;color:#59635c;display:flex;align-items:center;gap:9px;margin:0 0 20px}.eyebrow span{width:22px;height:1px;background:var(--lime-deep)}.eyebrow.light{color:#bfc7bf}.eyebrow.light span{background:var(--lime)}h1,h2,h3,p{margin-top:0}.hero h1{font-size:clamp(55px,6.2vw,91px);line-height:.92;letter-spacing:-.085em;margin-bottom:27px}.hero h1 em{font-style:normal;color:var(--lime-deep)}.hero-text{max-width:545px;color:var(--muted);font-size:16px;line-height:1.9}.actions{display:flex;align-items:center;gap:25px;margin-top:33px}.text-link{font:700 12px var(--sans)}.text-link b{font-size:17px;margin-left:8px}.hero-visual{position:relative}.process-card{background:#171a18;color:white;padding:23px;border:1px solid #171a18;position:relative;z-index:2;box-shadow:16px 16px 0 var(--lime)}.window-top{font:10px var(--mono);letter-spacing:.1em;color:#9aa59c;padding-bottom:21px;border-bottom:1px solid #303531;display:flex;justify-content:space-between}.live{color:var(--lime)}.live i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lime);margin-right:6px;box-shadow:0 0 10px var(--lime);animation:blink 1.5s infinite}.process-flow{padding:26px 0}.process{display:flex;gap:17px;align-items:center}.node{width:34px;height:34px;display:grid;place-items:center;border:1px solid #4e574f;color:var(--lime);font:10px var(--mono)}.process small{display:block;color:#88928a;font:9px var(--mono);letter-spacing:.1em}.process strong{display:block;margin:2px 0;font-size:20px;letter-spacing:-.05em}.process code{color:#c5ccc6;font:10px var(--mono)}.wire{height:24px;border-left:1px dashed #59635b;margin:4px 0 4px 16px}.process.plugin .node{background:var(--lime);color:var(--ink);border-color:var(--lime)}.process-foot{border-top:1px solid #303531;padding-top:16px;display:flex;justify-content:space-between;color:#88928a;font:9px var(--mono);letter-spacing:.06em}.process-foot b{color:var(--lime);font-size:12px}.orbit{position:absolute;border:1px solid var(--line);border-radius:50%;z-index:0}.o1{width:290px;height:290px;right:-65px;top:-48px}.o2{width:170px;height:170px;left:-75px;bottom:-60px}.metrics{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr)}.metric-grid>div{padding:28px 26px;border-left:1px solid var(--line)}.metric-grid>div:last-child{border-right:1px solid var(--line)}.metric-grid strong{display:block;font-size:28px;letter-spacing:-.07em}.metric-grid strong span{font-size:16px;color:var(--lime-deep)}.metric-grid p{margin:5px 0 0;color:var(--muted);font:10px var(--mono);letter-spacing:.07em}.section{padding:145px 0}.section-intro{display:grid;grid-template-columns:1fr 1fr;column-gap:45px;margin-bottom:68px}.section-intro .eyebrow{grid-column:1}.section-intro h2{grid-column:1;font-size:clamp(44px,5vw,72px);line-height:.91;letter-spacing:-.08em;margin:0}.section-intro>p:last-child{align-self:end;color:var(--muted);font-size:15px;line-height:1.85;max-width:390px;margin:0}.feature-list{border-top:1px solid var(--line)}.feature{display:grid;grid-template-columns:100px 1fr 40px;gap:25px;padding:26px 0;border-bottom:1px solid var(--line);align-items:start}.feature>span{font:11px var(--mono);color:var(--lime-deep)}.feature h3{font-size:24px;letter-spacing:-.055em;margin:0 0 7px}.feature p{color:var(--muted);font-size:14px;max-width:650px;margin:0}.feature>b{font:20px var(--mono);color:var(--lime-deep)}.graphics{background:#171a18;color:var(--white);padding:128px 0}.graphics-layout{display:grid;grid-template-columns:.78fr 1.22fr;gap:90px;align-items:center}.graphics-title h2{font-size:clamp(53px,6vw,87px);letter-spacing:-.1em;line-height:.85;margin:0 0 22px}.graphics-title h2 span{color:var(--lime)}.graphics-title>p{max-width:385px;color:#a4ada5;font-size:15px;line-height:1.85;margin-bottom:29px}.inverted{background:var(--lime);color:var(--ink);border-color:var(--lime)}.inverted:hover{box-shadow:4px 4px 0 #fff}.benchmark{border:1px solid #3a413b;padding:26px;background:#1d211e}.benchmark-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #39403a;padding-bottom:17px;color:#aab3ab;font:10px var(--mono);letter-spacing:.09em}.tabs{display:flex;gap:5px}.tab{border:1px solid transparent;background:transparent;color:#89928a;font:10px var(--mono);padding:6px 8px;cursor:pointer}.tab.active{border-color:#667068;color:var(--lime)}.bench-panel{display:none;padding-top:30px}.bench-panel.active{display:block;animation:appear .25s ease}.bench-panel h3{font-size:26px;letter-spacing:-.05em;margin:0 0 3px}.bench-panel>p{color:#929d93;font-size:12px;margin-bottom:26px}.bars>div{margin:0 0 18px}.bars label{display:flex;justify-content:space-between;color:#aeb7b0;font:10px var(--mono);margin-bottom:7px}.bars label b{font-weight:500}.bars i{display:block;height:10px;background:#323a33}.bars em{display:block;height:100%;width:var(--w);background:#879189;transition:width .8s cubic-bezier(.2,.8,.2,1)}.bars .highlight label{color:var(--lime)}.bars .highlight em{background:var(--lime)}.plugins{padding-bottom:115px}.plugin-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.plugin-card{border:1px solid var(--line);padding:32px;min-height:260px;display:flex;flex-direction:column;justify-content:space-between;transition:border-color .2s,background .2s}.plugin-card:hover{border-color:#849185;background:#f6f8f3}.plugin-kind{font:10px var(--mono);color:var(--lime-deep);letter-spacing:.09em}.plugin-card h3{font-size:35px;letter-spacing:-.07em;margin:50px 0 8px}.plugin-card p{color:var(--muted);font-size:14px;max-width:390px}.plugin-card footer{border-top:1px solid var(--line);padding-top:14px;display:flex;justify-content:space-between;align-items:center;color:#647068;font:10px var(--mono)}.install-section{border-top:1px solid var(--line);padding:100px 0 120px}.install-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:start}.install-copy h2{font-size:clamp(44px,5vw,70px);letter-spacing:-.085em;line-height:.9;margin:0 0 18px}.install-copy>p{color:var(--muted);font-size:15px;line-height:1.9;max-width:520px}.install-points{margin:28px 0 0;padding:0;list-style:none}.install-points li{border-top:1px solid var(--line);padding:14px 0;display:grid;grid-template-columns:72px 1fr;gap:14px}.install-points b{font:10px var(--mono);color:var(--lime-deep);letter-spacing:.08em}.install-points span{color:var(--muted);font-size:13px;line-height:1.7}.download-panel{border:1px solid var(--ink);background:var(--white);padding:28px;box-shadow:12px 12px 0 var(--lime)}.download-panel-head{display:flex;justify-content:space-between;gap:12px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:22px}.download-panel-head h3{margin:0;font-size:22px;letter-spacing:-.045em}.download-panel-head span{font:10px var(--mono);color:var(--muted);letter-spacing:.08em}.version-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:22px}.version-card{border:1px solid var(--line);background:var(--soft);padding:16px;text-align:left;cursor:pointer;transition:.2s;font:inherit;color:inherit}.version-card:hover{border-color:#849185}.version-card.active{border-color:var(--ink);background:#f3fce3;box-shadow:inset 0 0 0 1px var(--ink)}.version-card strong{display:block;font-size:20px;letter-spacing:-.05em;margin-bottom:6px}.version-card em{display:block;font-style:normal;font:10px var(--mono);color:var(--lime-deep);letter-spacing:.08em;margin-bottom:8px}.version-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}.version-card:disabled,.version-card.is-disabled{opacity:.5;cursor:not-allowed;box-shadow:none}.download-meta{display:grid;gap:10px;margin-bottom:22px}.download-meta .row{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:10px;font-size:12px}.download-meta .row span{color:var(--muted);font:10px var(--mono);letter-spacing:.07em}.download-meta .row b{font:500 12px var(--mono);color:var(--ink);text-align:right;word-break:break-all}.download-actions{display:flex;flex-direction:column;gap:12px}.download-note{margin:14px 0 0;color:var(--muted);font-size:12px;line-height:1.75}.footer{padding:35px 0;background:#171a18;color:#dfe5df}.footer-inner{display:grid;grid-template-columns:1fr 1fr 1.3fr;align-items:center;gap:20px}.footer .brand-mark{background:var(--lime);color:var(--ink)}.footer p{font:10px var(--mono);color:#98a299;margin:0}.footer p:last-child{text-align:right}@keyframes blink{50%{opacity:.28}}@keyframes appear{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}.reveal{opacity:0;transform:translateY(22px);transition:.7s cubic-bezier(.2,.8,.2,1)}.reveal.in{opacity:1;transform:none}@media(max-width:850px){.desktop-nav,.github{display:none}.hero,.graphics-layout,.install-layout{grid-template-columns:1fr;gap:54px}.hero{padding:65px 0}.hero-copy{max-width:650px}.hero-visual{max-width:570px}.section{padding:94px 0}.section-intro{grid-template-columns:1fr}.section-intro h2{margin-bottom:22px}.metric-grid{grid-template-columns:1fr 1fr}.metric-grid>div:nth-child(3){border-left:0}.footer-inner{grid-template-columns:1fr;gap:18px}.footer p:last-child{text-align:left}.menu-toggle{display:flex;width:33px;height:30px;padding:0;border:0;background:none;flex-direction:column;justify-content:center;gap:6px}.menu-toggle i{width:22px;height:1px;background:var(--ink);display:block;transition:.25s}.mobile-nav{display:flex;position:absolute;top:82px;left:0;right:0;background:var(--white);border-bottom:1px solid var(--line);padding:17px 28px;flex-direction:column;gap:14px;opacity:0;visibility:hidden;transform:translateY(-8px);transition:.25s}.site-header.menu-open .mobile-nav{opacity:1;visibility:visible;transform:none}.site-header.menu-open .menu-toggle i:first-child{transform:translateY(3.5px) rotate(45deg)}.site-header.menu-open .menu-toggle i:last-child{transform:translateY(-3.5px) rotate(-45deg)}.mobile-nav a{font:500 12px var(--mono);color:var(--muted)}}@media(max-width:560px){.shell{width:min(100% - 36px,1180px)}.site-header{height:70px}.mobile-nav{top:70px}.brand{font-size:19px}.nav-right{gap:13px}.button.small{display:none}.hero h1{font-size:55px}.actions{align-items:flex-start;flex-direction:column;gap:17px}.process-card{padding:18px;box-shadow:9px 9px 0 var(--lime)}.process strong{font-size:17px}.metrics .shell{width:100%}.metric-grid>div{padding:20px 18px}.metric-grid strong{font-size:23px}.section-intro{margin-bottom:45px}.feature{grid-template-columns:45px 1fr 20px;gap:11px}.feature h3{font-size:20px}.graphics{padding:84px 0}.benchmark{padding:18px}.bench-panel h3{font-size:22px}.plugin-grid{grid-template-columns:1fr}.plugin-card{min-height:230px}.install-section{padding:72px 0}.version-grid{grid-template-columns:1fr}.download-panel{padding:20px;box-shadow:8px 8px 0 var(--lime)}.footer{padding:30px 0}.footer-inner{gap:12px}}
+
+/* Rsift Core deep-dive */
+.core-section{padding-top:132px}.core-hero{display:grid;grid-template-columns:1.1fr .9fr;gap:70px;align-items:end;margin-bottom:42px}.core-hero h2{font-size:clamp(44px,5.3vw,76px);line-height:1.02;letter-spacing:-.075em;margin:0}.core-hero>p{color:var(--muted);font-size:15px;line-height:1.9;margin:0 0 5px}.core-statement{border-top:1px solid var(--ink);border-bottom:1px solid var(--line);padding:22px 0;display:grid;grid-template-columns:190px 1fr;gap:25px;margin-bottom:60px}.core-statement span,.arch-board-head,.lab-top,.lab-foot,.bench-card>span{font:10px var(--mono);letter-spacing:.09em;color:var(--lime-deep)}.core-statement p{font-weight:600;font-size:15px;letter-spacing:-.02em;margin:0}.architecture-board{background:#171a18;color:#fff;padding:24px;margin-bottom:16px}.arch-board-head{display:flex;justify-content:space-between;color:#aab3ab;border-bottom:1px solid #39403a;padding-bottom:16px}.arch-map{padding:25px 0 0}.arch-os{font:10px var(--mono);letter-spacing:.08em;color:#aeb8af}.arch-arrow{color:var(--lime);font:20px var(--mono);line-height:1.1;margin:7px 0}.arch-master{border:1px solid var(--lime);background:rgba(183,248,76,.08);padding:17px 19px;max-width:650px}.arch-master small,.arch-node small{display:block;color:#a2af9f;font:9px var(--mono);letter-spacing:.1em}.arch-master strong{display:block;font-size:24px;letter-spacing:-.05em}.arch-master em{font-style:normal;color:var(--lime);font-size:15px;margin-left:7px}.arch-branches{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:27px 0}.arch-node{background:#222723;border:1px solid #3a443b;color:#fff;text-align:left;padding:15px;display:flex;gap:11px;align-items:flex-start;cursor:pointer;transition:.2s}.arch-node:hover,.arch-node.active{background:#2c352b;border-color:var(--lime)}.arch-node b{font:10px var(--mono);color:var(--lime)}.arch-node span{font-size:12px;font-weight:700;line-height:1.35}.arch-node i{margin-left:auto;color:var(--lime);font-style:normal}.arch-output{display:flex;gap:10px;flex-wrap:wrap}.arch-output span{border:1px solid #3a443b;padding:8px 10px;color:#bbc4bc;font:10px var(--mono)}.arch-detail{border-top:1px solid #39403a;padding-top:19px;margin-top:23px}.arch-detail>span{color:var(--lime);font:10px var(--mono);letter-spacing:.09em}.arch-detail h3{font-size:24px;letter-spacing:-.04em;margin:6px 0}.arch-detail p{color:#b4beb5;font-size:13px;max-width:710px;line-height:1.8;margin:0}.core-pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:80px}.core-pillar{border-top:2px solid var(--ink);padding:20px 0}.core-pillar>span{font:10px var(--mono);color:var(--lime-deep)}.core-pillar h3{font-size:21px;letter-spacing:-.05em;margin:32px 0 10px}.core-pillar p{color:var(--muted);font-size:13px;line-height:1.85;margin:0}.lab-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-bottom:132px}.core-lab{background:#171a18;padding:22px;color:#fff}.lab-top{display:flex;justify-content:space-between;align-items:center;color:#abb4ac;border-bottom:1px solid #39403a;padding-bottom:14px}.lab-top button{background:var(--lime);border:0;color:var(--ink);padding:7px 9px;font:500 10px var(--mono);cursor:pointer}.lab-top button b{font-size:13px}.boot-log{height:212px;padding:17px 0;font:11px/1.85 var(--mono);overflow:auto}.boot-log p{margin:0}.boot-log .ok{color:var(--lime)}.boot-log .dim{color:#89938a}.boot-log .warn{color:#f4d56b}.boot-log .muted{color:#778078}.lab-foot{border-top:1px solid #39403a;padding-top:13px;color:#879088;display:flex;justify-content:space-between;font-size:9px}.core-summary{border:1px solid var(--line);padding:26px}.core-summary .eyebrow{margin-bottom:22px}.core-summary .eyebrow i{width:5px;height:5px;background:var(--lime-deep);display:inline-block;border-radius:50%}.core-summary ul{list-style:none;padding:0;margin:0}.core-summary li{border-top:1px solid var(--line);padding:14px 0;display:flex;flex-direction:column;gap:2px}.core-summary b{font-size:14px;letter-spacing:-.02em}.core-summary li span{color:var(--muted);font-size:12px}.bench-heading{display:grid;grid-template-columns:1.2fr .8fr;column-gap:60px;margin-bottom:45px}.bench-heading .eyebrow{grid-column:1}.bench-heading h2{font-size:clamp(42px,5vw,70px);letter-spacing:-.08em;line-height:.94;margin:0}.bench-heading>p:last-child{color:var(--muted);font-size:13px;line-height:1.85;align-self:end;margin:0}.core-bench{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.bench-card{border:1px solid var(--line);padding:25px;min-height:190px}.bench-card.wide{grid-column:span 2}.bench-card.full{grid-column:span 2;background:var(--soft)}.bench-card h3{font-size:27px;letter-spacing:-.055em;margin:33px 0 11px}.bench-card h3 small{font:12px var(--mono);color:var(--lime-deep);letter-spacing:0}.bench-card p{color:var(--muted);font-size:12px;line-height:1.8;margin:0}.compare-row{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-top:1px solid var(--line)}.compare-row>div{background:var(--white);padding:17px}.compare-row small{font:9px var(--mono);color:var(--muted);display:block}.compare-row b{display:block;font-size:28px;letter-spacing:-.065em;margin:5px 0}.compare-row p{font-size:11px}.compare-row .result{background:#eaffc9}.compare-row .result small,.compare-row .result b{color:#3c6520}
+@media(max-width:850px){.core-hero,.lab-grid{grid-template-columns:1fr;gap:25px}.core-statement{grid-template-columns:1fr;gap:8px}.arch-branches{grid-template-columns:1fr}.core-pillars{grid-template-columns:1fr}.bench-heading{grid-template-columns:1fr;gap:22px}.bench-heading h2{margin:0}.core-section{padding-top:90px}}@media(max-width:560px){.core-statement{margin-bottom:38px}.architecture-board{padding:17px}.arch-board-head{gap:10px;font-size:8px}.arch-master strong{font-size:19px}.arch-master em{display:block;margin:3px 0 0}.core-pillars{margin-bottom:55px}.lab-grid{margin-bottom:85px}.core-bench,.compare-row{grid-template-columns:1fr}.bench-card.wide,.bench-card.full{grid-column:span 1}.compare-row{gap:1px}.bench-card{min-height:0}.lab-foot{font-size:8px}.core-hero h2{font-size:43px}}
+
+.button{box-shadow:3px 3px 0 var(--lime)!important;transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s cubic-bezier(.2,.8,.2,1),background .2s!important}.button:hover{transform:translate(-3px,-3px)!important;box-shadow:9px 9px 0 var(--lime)!important}.inverted{box-shadow:3px 3px 0 #fff!important}.inverted:hover{box-shadow:9px 9px 0 #fff!important}.telemetry-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;margin-top:14px}.telemetry-card{border:1px solid var(--line);padding:23px;min-height:220px}.telemetry-card.throughput-card{grid-column:span 2;min-height:176px}.telemetry-head{display:flex;justify-content:space-between;gap:12px;color:#657067;font:10px var(--mono);letter-spacing:.08em}.telemetry-head b{color:var(--lime-deep);font-weight:500}.latency-graph{width:100%;height:125px;margin:15px 0 3px;overflow:visible}.gridline{stroke:#e0e4dc;stroke-width:1}.area{fill:rgba(183,248,76,.24)}.trend{fill:none;stroke:var(--lime-deep);stroke-width:3;stroke-dasharray:720;stroke-dashoffset:720;animation:drawTrend 2.8s cubic-bezier(.2,.8,.2,1) forwards}.graph-axis{display:flex;justify-content:space-between;color:#778178;font:9px var(--mono);letter-spacing:.07em}.ring-layout{display:grid;grid-template-columns:118px 1fr;gap:20px;align-items:center;padding-top:20px}.ring{position:relative;width:114px;height:114px}.ring svg{width:100%;height:100%;transform:rotate(-90deg)}.ring circle{fill:none;stroke:#e4e9e1;stroke-width:8}.ring .ring-progress{stroke:var(--lime-deep);stroke-linecap:square;stroke-dasharray:314;stroke-dashoffset:38;animation:ringIn 1.6s ease forwards}.ring strong{position:absolute;inset:0;display:grid;place-content:center;font-size:26px;letter-spacing:-.08em}.ring strong span{font-size:11px;color:var(--lime-deep);margin-left:2px}.ring-layout h3{font-size:18px;letter-spacing:-.045em;margin:0 0 5px}.ring-layout p{color:var(--muted);font-size:12px;line-height:1.6;margin:0 0 12px}.ring-layout small{font:8px var(--mono);color:#667167}.ring-layout small i{display:inline-block;width:5px;height:5px;background:var(--lime-deep);border-radius:50%;margin-right:5px}.vertical-bars{height:96px;display:flex;align-items:end;gap:10px;padding:18px 0 8px;border-bottom:1px solid var(--line)}.vertical-bars i{display:block;flex:1;height:0;background:var(--lime-deep);animation:barRise .8s cubic-bezier(.2,.8,.2,1) forwards}.vertical-bars i:nth-child(2){animation-delay:.08s}.vertical-bars i:nth-child(3){animation-delay:.16s}.vertical-bars i:nth-child(4){animation-delay:.24s}.vertical-bars i:nth-child(5){animation-delay:.32s}.vertical-bars i:nth-child(6){animation-delay:.4s}.vertical-bars i:nth-child(7){animation-delay:.48s}.vertical-bars i:nth-child(8){animation-delay:.56s}@keyframes drawTrend{to{stroke-dashoffset:0}}@keyframes ringIn{from{stroke-dashoffset:314}to{stroke-dashoffset:38}}@keyframes barRise{to{height:var(--h)}}@media(max-width:680px){.telemetry-grid{grid-template-columns:1fr}.telemetry-card.throughput-card{grid-column:span 1}.telemetry-head{font-size:8px}.ring-layout{gap:13px;grid-template-columns:105px 1fr}.ring{width:104px;height:104px}.telemetry-card{padding:17px}}
+
+.button::after{content:"";position:absolute;right:-9px;bottom:-9px;width:18px;height:18px;background:transparent;cursor:pointer}.trace-status{color:var(--lime);font:10px var(--mono);letter-spacing:.08em}.trace-status i{width:6px;height:6px;display:inline-block;border-radius:50%;background:var(--lime);margin-right:6px;animation:blink 1.4s infinite}.benchmark-disclaimer{border-left:3px solid var(--lime-deep);background:#f3f7ed;padding:13px 16px;color:#516055;font-size:12px;line-height:1.8;margin:0 0 14px}.ring .ring-progress{stroke-dashoffset:0!important;animation:ringFull 1.6s ease forwards!important}h1,h2,h3{text-wrap:balance}@keyframes ringFull{from{stroke-dashoffset:314}to{stroke-dashoffset:0}}
+
+.language-switch{display:flex;gap:8px;font:10px var(--mono);color:#788178}.language-switch a.active,.language-switch a:hover{color:var(--ink);border-bottom:1px solid var(--lime-deep)}@media(max-width:850px){.language-switch{margin-right:2px}}
+.plugin-link{color:var(--lime-deep);font:10px var(--mono);margin-left:auto;margin-right:18px}.plugin-link:hover{text-decoration:underline}
+
+.spa-detail{width:min(1180px,calc(100% - 56px));margin:0 auto;padding:92px 0 120px}.detail-top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:17px}.detail-top .eyebrow{margin:0}.detail-close{font:10px var(--mono);color:#647068}.detail-intro{display:grid;grid-template-columns:1fr .8fr;gap:60px;padding:70px 0}.detail-intro h1{font-size:clamp(62px,10vw,135px);line-height:.78;letter-spacing:-.11em;margin:0}.detail-intro h1 span{color:var(--lime-deep)}.detail-intro p{color:var(--muted);font-size:15px;line-height:1.95;align-self:end;margin:0}.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.detail-grid article{border-top:2px solid var(--ink);padding:22px 0 8px}.detail-grid span{font:10px var(--mono);color:var(--lime-deep)}.detail-grid h2{font-size:23px;letter-spacing:-.055em;margin:33px 0 9px}.detail-grid p{font-size:13px;line-height:1.85;color:var(--muted);margin:0}.detail-bench{margin-top:90px;padding:40px;background:var(--soft);border:1px solid var(--line)}.detail-bench-head{display:grid;grid-template-columns:1fr .9fr;gap:35px;align-items:end;margin-bottom:30px}.detail-bench-head h2{font-size:clamp(40px,5vw,68px);letter-spacing:-.085em;line-height:.88;margin:0}.detail-bench-head .benchmark-disclaimer{margin:0}.detail-chart>div{margin:18px 0}.detail-chart label{display:flex;justify-content:space-between;font:11px var(--mono);margin-bottom:7px}.detail-chart i{display:block;height:14px;background:#e1e5de}.detail-chart em{height:100%;width:0;display:block;background:#7d897f;animation:routeBar .9s cubic-bezier(.2,.8,.2,1) forwards}.detail-chart .best label{color:#5b8c1e;font-weight:700}.detail-chart .best em{background:var(--lime)}.detail-stats{margin-top:36px;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr)}.detail-stats div{padding:18px;border-right:1px solid var(--line)}.detail-stats div:last-child{border-right:0}.detail-stats b{display:block;font-size:25px;letter-spacing:-.06em}.detail-stats span{font:9px var(--mono);color:var(--muted)}.calc-tabs{display:flex;gap:5px;margin-bottom:25px}.calc-tab{background:transparent;border:1px solid var(--line);padding:8px 10px;font:10px var(--mono);cursor:pointer}.calc-tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}.calc-row{display:grid;grid-template-columns:220px 1fr 105px;gap:15px;align-items:center;padding:10px 0}.calc-row label{font-size:11px;font-weight:700}.calc-row label small{display:block;color:var(--muted);font:9px var(--mono);margin-top:3px}.calc-row i{height:11px;background:#e0e5de;display:block}.calc-row em{height:100%;display:block;background:var(--lime-deep);width:0;transition:width .8s cubic-bezier(.2,.8,.2,1)}.calc-row b{font:11px var(--mono);color:#567c22;text-align:right}@keyframes routeBar{to{width:var(--rw)}}@media(max-width:700px){.spa-detail{width:min(100% - 36px,1180px);padding:62px 0 82px}.detail-intro,.detail-bench-head{grid-template-columns:1fr;gap:25px}.detail-intro{padding:48px 0}.detail-grid{grid-template-columns:1fr}.detail-bench{padding:21px;margin-top:60px}.detail-stats{grid-template-columns:1fr}.detail-stats div{border-right:0;border-bottom:1px solid var(--line)}.calc-row{grid-template-columns:115px 1fr 60px;gap:8px}.calc-row label{font-size:9px}.calc-row b{font-size:8px}}
+
+.spa-detail.route-enter{animation:routeEnter .55s cubic-bezier(.2,.8,.2,1) both}.home-route-enter{animation:routeEnter .45s cubic-bezier(.2,.8,.2,1) both}@keyframes routeEnter{from{opacity:0;transform:translateY(22px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}@media(max-width:850px){.menu-toggle{display:flex!important;flex-shrink:0!important;visibility:visible!important;opacity:1!important;position:relative;z-index:50}.nav-right{margin-left:auto}.language-switch{flex-shrink:0}.mobile-nav{z-index:40}.mobile-nav a{padding:5px 0}}
+
+.detail-deep{display:grid;grid-template-columns:1fr 1fr;gap:28px;border-top:1px solid var(--line);padding:28px 0 0;margin-top:44px}.detail-deep p{margin:0;color:#556057;font-size:13px;line-height:2}@media(max-width:700px){.detail-deep{grid-template-columns:1fr;gap:16px}}
+
+.about-strip{padding:28px 0 0}.about-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}.about-card{border:1px solid var(--line);padding:24px;min-height:180px}.about-card span{font:10px var(--mono);color:var(--lime-deep);letter-spacing:.08em}.about-card h3{font-size:22px;letter-spacing:-.045em;margin:28px 0 10px}.about-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.8}@media(max-width:850px){.about-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="container nav-container">
-      <a href="#" class="brand">
-        <div class="brand-icon">R</div>
-        <span>RSIFT</span>
-      </a>
-      <ul class="nav-links">
-        <li><a href="#architecture">Loader Core</a></li>
-        <li><a href="#rsgraphics">RsGraphics Mod</a></li>
-        <li><a href="#ecosystem">Ecosystem</a></li>
-        <li><a href="#get-started">Installation</a></li>
-      </ul>
-      <div class="nav-actions">
-        <a href="#get-started" class="btn btn-primary">Download v1.0.0</a>
+  <div class="site-line"></div>
+  <header class="site-header">
+    <div class="shell nav-shell">
+      <a class="brand" href="#top" aria-label="Rsift ホーム"><span class="brand-mark">R</span><span>rsift</span></a>
+      <nav class="desktop-nav" aria-label="メインナビゲーション">
+        <a href="#core">コア</a>
+        <a href="#rsgraphics">RsGraphics</a>
+        <a href="#rscalc">RsCalc</a>
+        <a href="#plugins">プラグイン</a>
+        <a href="#install">ダウンロード</a>
+      </nav>
+      <div class="nav-right">
+        <div class="language-switch" aria-label="言語">
+          <a class="active" href="jp/index.html">JP</a>
+          <a href="en/index.html">EN</a>
+          <a href="ko/index.html">KO</a>
+        </div>
+        <a class="github" href="https://github.com/ifuto/arenaforall" target="_blank" rel="noopener">GitHub ↗</a>
+        <a class="button small" href="#install">Rsift を入手</a>
+        <button class="menu-toggle" aria-label="メニューを開く" aria-expanded="false"><i></i><i></i></button>
       </div>
     </div>
-  </nav>
+    <nav class="mobile-nav" aria-label="モバイルナビゲーション">
+      <a href="#core">コア</a>
+      <a href="#rsgraphics">RsGraphics</a>
+      <a href="#rscalc">RsCalc</a>
+      <a href="#plugins">プラグイン</a>
+      <a href="#install">ダウンロード</a>
+    </nav>
+  </header>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="container hero-grid">
-      <div class="hero-content">
-        <div class="badge">Next-Generation Modding Engine</div>
-        <h1>The Paradigm Shift in <span class="text-gradient">Minecraft Modification.</span></h1>
-        <p>
-          Rsift completely inverts the Java host relationship. By booting as a high-performance pure Rust master process with direct JNI Invocation mastery, Rsift achieves instantaneous mod loading, zero-copy off-heap memory bridges, and absolute elimination of Stop-the-World garbage collection stutters.
-        </p>
-        <div class="hero-cta">
-          <a href="#get-started" class="btn btn-primary">Download Rsift Launcher</a>
-          <a href="#rsgraphics" class="btn btn-secondary">Explore Official Plugins →</a>
-        </div>
-        <div class="hero-metrics">
-          <div class="metric-item">
-            <h4>&lt;15 ms</h4>
-            <p>Native Boot Time</p>
-          </div>
-          <div class="metric-item">
-            <h4>0 GC</h4>
-            <p>Heap Stutter Spikes</p>
-          </div>
-          <div class="metric-item">
-            <h4>Native .DLL</h4>
-            <p>Plugin Architecture</p>
+  <main id="top">
+    <div id="homeContent">
+      <section class="hero shell">
+        <div class="hero-copy reveal">
+          <p class="eyebrow"><span></span> NATIVE-FIRST MODDING</p>
+          <h1>Minecraft の動きを、<br><em>根本から変える。</em></h1>
+          <p class="hero-text">Rsift は Rust 製のネイティブファースト Mod ローダーです。従来の Java ランタイム前提の構成を見直し、起動・制御・プラグイン拡張をネイティブ側へ再配置します。中核プロジェクト <strong>RsGraphics</strong> は、Sodium を超える描画最適化を目標に開発が続けられています。</p>
+          <div class="actions">
+            <a class="button" href="#install">v1.0.0 をダウンロード <b>↓</b></a>
+            <a class="text-link" href="#core">仕組みを見る <b>→</b></a>
           </div>
         </div>
-      </div>
-
-      <!-- Hero Terminal Simulation -->
-      <div class="terminal-window">
-        <div class="terminal-header">
-          <div class="terminal-dots">
-            <span class="dot red"></span>
-            <span class="dot yellow"></span>
-            <span class="dot green"></span>
+        <div class="hero-visual reveal">
+          <div class="process-card">
+            <div class="window-top"><span>RSIFT / PROCESS MAP</span><span class="live"><i></i> LIVE</span></div>
+            <div class="process-flow">
+              <div class="process rust"><span class="node">01</span><div><small>MASTER PROCESS</small><strong>rsift.exe</strong><code>Rust native host</code></div></div>
+              <div class="wire"></div>
+              <div class="process java"><span class="node">02</span><div><small>CHILD PROCESS</small><strong>jvm.dll</strong><code>Managed JVM bridge</code></div></div>
+              <div class="wire"></div>
+              <div class="process plugin"><span class="node">03</span><div><small>PLUGIN LAYER</small><strong>*.dll / *.so</strong><code>Native extensions</code></div></div>
+            </div>
+            <div class="process-foot"><span>BOOT SEQUENCE</span><b>≒15ms</b><span>ZERO-COPY BRIDGE</span></div>
           </div>
-          <span class="terminal-title">rsift.exe — Master Process Console</span>
-          <div></div>
+          <div class="orbit o1"></div>
+          <div class="orbit o2"></div>
         </div>
-        <div class="terminal-body" id="terminal-logs">
-          <!-- Populated by script.js -->
+      </section>
+
+      <section class="metrics">
+        <div class="shell metric-grid">
+          <div><strong>≒15<span>ms</span></strong><p>ネイティブ起動ターゲット</p></div>
+          <div><strong>0<span> GC</span></strong><p>ブリッジ起因の停止</p></div>
+          <div><strong>Rust</strong><p>マスタープロセス</p></div>
+          <div><strong>.dll</strong><p>プラグイン構成</p></div>
         </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
-  <!-- Section: Rsift Architecture (The Core Loader) -->
-  <section id="architecture" class="architecture">
-    <div class="container">
-      
-      <!-- Crucial Architectural Notice Box -->
-      <div class="loader-notice-box">
-        <div class="notice-icon">⚙️</div>
-        <div class="notice-text">
-          <h3>Architectural Clarity: Why Rsift is the Loader, Not the Renderer</h3>
-          <p>
-            <strong>Rsift is strictly a master host process and native mod loader.</strong> On its own, Rsift does not alter game graphics, lighting, or entity physics. Instead, Rsift constructs the high-velocity, zero-overhead execution foundation where dedicated native dynamic libraries (`.dll` / `.so`) operate at bare-metal speeds. The graphics optimization and high FPS achievements belong to our official plugin, <strong>RsGraphics</strong>.
-          </p>
+      <section class="section shell about-strip">
+        <div class="section-intro reveal">
+          <p class="eyebrow"><span></span> 00 / OVERVIEW</p>
+          <h2>ローダーを、<br>ゲームの外へ。</h2>
+          <p>Rsift は「Mod を読み込む道具」ではなく、Minecraft の実行境界そのものを設計し直すためのネイティブホストです。描画・計算・録画といった重い処理を、必要に応じて JVM の外へ逃がせます。</p>
         </div>
-      </div>
-
-      <div class="section-header">
-        <h2>Inverted Process Mastery</h2>
-        <p>How Rsift liberates Minecraft 1.21.11 from traditional Java runtime limitations and memory bottlenecks.</p>
-      </div>
-
-      <div class="arch-grid">
-        <div class="card">
-          <div class="card-icon">⚡</div>
-          <h3>JNI Invocation Mastery</h3>
-          <p>
-            Traditional loaders run subserviently inside the Java Virtual Machine. Rsift inverts this flow entirely: the pure Rust binary (`rsift.exe`) launches first, dynamically spawning the Minecraft JVM (`jvm.dll`) as a subordinate child thread under strict external CPU core and memory priority control.
-          </p>
+        <div class="about-grid">
+          <article class="about-card reveal">
+            <span>WHY RSIFT</span>
+            <h3>Java の中で戦わない</h3>
+            <p>従来のローダーは JVM 内でクラス変換やイベント配線を行います。Rsift は OS ネイティブプロセスとして先に立ち上がり、JVM を管理対象として扱います。</p>
+          </article>
+          <article class="about-card reveal">
+            <span>FOCUS</span>
+            <h3>RsGraphics が本丸</h3>
+            <p>公式プラグイン RsGraphics は、エンティティ密集場面や地形メッシュ、領域セーブなど、体感 FPS に直結する経路をネイティブ側から再設計します。目標は Sodium を超えること。</p>
+          </article>
+          <article class="about-card reveal">
+            <span>ECOSYSTEM</span>
+            <h3>必要な能力だけを載せる</h3>
+            <p>RsCalc（物理/AI）、RsReplay（キャプチャ）など、機能を native plugin として分離。使わないものを読み込まない構成を前提にしています。</p>
+          </article>
         </div>
+      </section>
 
-        <div class="card">
-          <div class="card-icon">🧠</div>
-          <h3>SIMD Class Interception</h3>
-          <p>
-            Instead of relying on slow, memory-heavy Java libraries like ASM to transform classes at runtime, Rsift intercepts the class-loading pipeline via JVMTI `ClassFileLoadHook`. Powered by AVX2 instructions, native bytecode patching executes in milliseconds.
-          </p>
-        </div>
-
-        <div class="card">
-          <div class="card-icon">🚀</div>
-          <h3>Zero-Copy Off-Heap IPC</h3>
-          <p>
-            To eradicate garbage collection spikes caused by massive object allocations, Rsift introduces lock-free SPSC Ring Buffers and `bytemuck::Pod` direct memory casting. Game packets and world data pass between Java and Rust without copying a single bit of payload memory.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section: Dedicated Showcase for RsGraphics (The Renderer) -->
-  <section id="rsgraphics" class="rsgraphics">
-    <div class="container">
-      <div class="rsg-border-box">
-        
-        <div class="rsg-header">
-          <div class="rsg-header-text">
-            <div class="badge rsg-badge">Official Graphics & Optimization Plugin</div>
-            <h2>Powered by <span class="text-gradient-cyan">RsGraphics.</span></h2>
-            <p>
-              Loaded seamlessly by Rsift, <strong>RsGraphics (`rsgraphics.dll`)</strong> intercepts native LWJGL drawing endpoints and redirects them into a modern `wgpu` / DirectX 12 bindless rendering engine—surpassing Sodium and OptiFine across all heavy gameplay scenarios.
-            </p>
-          </div>
+      <section id="core" class="section core-section shell">
+        <div class="core-hero reveal">
           <div>
-            <a href="#get-started" class="btn btn-rsg">Download rsgraphics.dll</a>
+            <p class="eyebrow"><span></span> 01 / RSIFT CORE</p>
+            <h2>Java の内側ではなく、<br>その前へ。</h2>
           </div>
+          <p>Rsift は描画 Mod ではありません。Minecraft が起動するより前に立ち上がり、JVM・メモリ・ネイティブプラグインの関係を再設計するための、純 Rust 製ローダーコアです。クラスパッチ、プロセス制御、オフヒープ IPC を一つのマスタープロセスに集約します。</p>
         </div>
 
-        <!-- Interactive Benchmarks Showcase -->
-        <div class="bench-showcase">
-          <div class="bench-tabs">
-            <button class="tab-btn active" data-tab="culling-v2">Entity Culling V2 vs Sodium</button>
-            <button class="tab-btn" data-tab="memory-savings">VRAM & Memory Savings</button>
-            <button class="tab-btn" data-tab="zstd-io">Parallel ZSTD Chunk I/O</button>
-            <button class="tab-btn" data-tab="culling-latency">Culling Latency Budget</button>
-          </div>
+        <div class="core-statement reveal">
+          <span>ARCHITECTURE NOTE</span>
+          <p>従来のローダーは JVM の中で動きます。Rsift は OS ネイティブプロセスとして先に起動し、JVM を管理対象として扱います。</p>
+        </div>
 
-          <!-- Tab 1: Entity Culling V2 -->
-          <div id="culling-v2" class="tab-content active">
-            <div class="bench-layout">
-              <div class="bench-text">
-                <h3>Surpassing Sodium in Heavy Crowds</h3>
-                <p>
-                  While Sodium excels at static block terrain, it lacks occlusion culling for entities—causing severe FPS drops when crowded by mobs or chests underground. RsGraphics introduces <strong>FastEntityCuller V2</strong>: combining 2-Stage Chunk Gates with SIMD 8-Wide Ray-Packet DDA raytracing.
-                </p>
-                <ul class="bench-features">
-                  <li><span class="check-icon">✓</span> <strong>ChunkBucketGate:</strong> O(1) instant rejection of all entities inside occluded or underground cave chunks without single ray tests.</li>
-                  <li><span class="check-icon">✓</span> <strong>SIMD RayPacket8:</strong> AVX2/SWAR 8-wide parallel path-tracing with early-out truncation.</li>
-                  <li><span class="check-icon">✓</span> <strong>BitMask Lookups:</strong> Zero HashMap/HashSet overhead during render loops.</li>
-                </ul>
-              </div>
-              <div class="chart-container">
-                <div class="chart-title">Effective FPS at 6,400 Entities (Live Simulation)</div>
-                
-                <div class="bar-group">
-                  <div class="bar-label">
-                    <span>Vanilla / OptiFine (No Culling)</span>
-                    <span>187 FPS</span>
-                  </div>
-                  <div class="bar-track">
-                    <div class="bar-fill bar-vanilla" data-width="30%"></div>
-                  </div>
-                </div>
-
-                <div class="bar-group">
-                  <div class="bar-label">
-                    <span>Sodium Engine (Distance & Frustum Only)</span>
-                    <span>369 FPS</span>
-                  </div>
-                  <div class="bar-track">
-                    <div class="bar-fill bar-sodium" data-width="59%"></div>
-                  </div>
-                </div>
-
-                <div class="bar-group">
-                  <div class="bar-label">
-                    <span style="color: #22d3ee;">RsGraphics (FastEntityCuller V2 + Chunk Gates)</span>
-                    <span style="color: #22d3ee; font-weight: 800;">621 FPS (1.68x over Sodium)</span>
-                  </div>
-                  <div class="bar-track">
-                    <div class="bar-fill bar-rsg" data-width="100%"></div>
-                  </div>
-                </div>
-              </div>
+        <div class="architecture-board reveal">
+          <div class="arch-board-head"><span>RSIFT / EXECUTION MAP</span><span>EXPERIMENTAL ARCHITECTURE</span></div>
+          <div class="arch-map">
+            <div class="arch-os">OS / HARDWARE</div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-master"><small>100% NATIVE BOOT · RUST</small><strong>Rsift master process <em>rsift.exe</em></strong></div>
+            <div class="arch-branches">
+              <button class="arch-node active" data-core="master"><b>01</b><span><small>CONTROL</small>JVM child management</span><i>→</i></button>
+              <button class="arch-node" data-core="patch"><b>02</b><span><small>PATCH</small>JVMTI class hook</span><i>→</i></button>
+              <button class="arch-node" data-core="bridge"><b>03</b><span><small>BRIDGE</small>Off-heap zero-copy IPC</span><i>→</i></button>
+            </div>
+            <div class="arch-output">
+              <span>JVM / Minecraft 1.21.11</span>
+              <span>Native plugins / .dll · .so</span>
+              <span>RsGraphics / RsCalc / RsReplay</span>
             </div>
           </div>
+          <div class="arch-detail" id="archDetail">
+            <span>01 / CONTROL</span>
+            <h3>主従関係をネイティブ側へ。</h3>
+            <p>rsift.exe が先に起動し、JVM を管理対象として生成します。実行優先度やコア割り当ての方針を、Java ヒープの外から設計できる構成です。</p>
+          </div>
+        </div>
 
-          <!-- Tab 2: Memory Savings -->
-          <div id="memory-savings" class="tab-content">
-            <div class="bench-layout">
-              <div class="bench-text">
-                <h3>7.9x Reduction in Mesh Data Footprint</h3>
-                <p>
-                  RsGraphics overhauls the memory representation of Minecraft terrain. By quantizing position, normal, and UV data into a ultra-compact <strong>12-Byte Vertex Format (`R10G10B10A2 + FP16 UV`)</strong> and deduplicating quad geometry across sections via `InternPool` welding, VRAM and RAM consumption are radically minimized.
-                </p>
-                <ul class="bench-features">
-                  <li><span class="check-icon">✓</span> <strong>12-Byte Quantized Vertices:</strong> 40% smaller than Sodium (20B) and 62% smaller than Vanilla (32B).</li>
-                  <li><span class="check-icon">✓</span> <strong>GenerationalSlab Allocator:</strong> Cache-line aligned (`align(64)`) intrusive free lists eliminate heap fragmentation.</li>
-                  <li><span class="check-icon">✓</span> <strong>Section Welding:</strong> Identical geometry patterns shared across sections with 66% deduplication hit rates.</li>
-                </ul>
-              </div>
-              <div class="chart-container">
-                <div class="chart-title">Total Terrain Mesh Memory Footprint (Lower is Better)</div>
-                
-                <div class="bar-group">
-                  <div class="bar-label">
-                    <span>Vanilla / OptiFine Mesh Footprint</span>
-                    <span>93.6 MB</span>
-                  </div>
-                  <div class="bar-track">
-                    <div class="bar-fill bar-vanilla" data-width="100%"></div>
-                  </div>
-                </div>
+        <div class="core-pillars">
+          <article class="core-pillar reveal">
+            <span>01</span>
+            <h3>主従関係の完全逆転</h3>
+            <p>従来のように JVM 内でローダーを実行するのではなく、純 Rust 製のネイティブ実行ファイルがマスターとして先行します。ゲームは「ホストされる側」です。</p>
+          </article>
+          <article class="core-pillar reveal">
+            <span>02</span>
+            <h3>ヒープ非依存のパッチ</h3>
+            <p>JVMTI フックを通じ、クラスが定義されるネイティブ層で処理。重い中間 Java オブジェクトの生成を避ける設計です。</p>
+          </article>
+          <article class="core-pillar reveal">
+            <span>03</span>
+            <h3>オフヒープ・ゼロコピー IPC</h3>
+            <p>Direct buffer とロックフリーリングバッファで、データ本体ではなくアドレスとサイズを共有する架け橋を作ります。</p>
+          </article>
+        </div>
 
-                <div class="bar-group">
-                  <div class="bar-label">
-                    <span>Sodium Engine Mesh Footprint</span>
-                    <span>58.5 MB</span>
-                  </div>
-                  <div class="bar-track">
-                    <div class="bar-fill bar-sodium" data-width="62.5%"></div>
-                  </div>
-                </div>
-
-                <div class="bar-group">
-                  <div class="bar-label">
-                    <span style="color: #22d3ee;">RsGraphics (12-Byte Quantized + InternPool Welding)</span>
-                    <span style="color: #22d3ee; font-weight: 800;">11.8 MB (7.9x Lighter)</span>
-                  </div>
-                  <div class="bar-track">
-                    <div class="bar-fill bar-rsg" data-width="12.6%"></div>
-                  </div>
-                </div>
-              </div>
+        <div class="lab-grid">
+          <article class="core-lab reveal">
+            <div class="lab-top">
+              <span>NATIVE / BOOT TRACE</span>
+              <span class="trace-status"><i></i> SIMULATING</span>
             </div>
-          </div>
-
-          <!-- Tab 3: ZSTD I/O -->
-          <div id="zstd-io" class="tab-content">
-            <div class="bench-layout">
-              <div class="bench-text">
-                <h3>8.8x Faster World Saving & Loading</h3>
-                <p>
-                  Traditional chunk I/O relies on sequential, single-threaded `zlib` / deflate compression inside the Java heap—causing noticeable stutter storms during elytra flight or autosaves. RsGraphics offloads region persistence to multi-threaded native `ZSTD` dictionary codecs operating over memory-mapped (`memmap2`) region files.
-                </p>
-                <ul class="bench-features">
-                  <li><span class="check-icon">✓</span> <strong>Parallel Region Codec:</strong> 36 chunk autosave completed in just 15.8 ms vs 139.4 ms on traditional loaders.</li>
-                  <li><span class="check-icon">✓</span> <strong>Zero-Copy Stream:</strong> Off-heap direct buffer transfer directly into high-speed ZSTD worker streams.</li>
-                  <li><span class="check-icon">✓</span> <strong>StutterGuard Arena:</strong> Micro-allocations reset instantly (`6.2 µs`) on frame boundaries.</li>
-                </ul>
-              </div>
-              <div class="chart-container">
-                <div class="chart-title">36-Chunk Region Autosave Duration (Lower is Better)</div>
-                
-                <div class="bar-group">
-                  <div class="bar-label">
-                    <span>Vanilla Java `zlib` Autosave</span>
-                    <span>139.4 ms</span>
-                  </div>
-                  <div class="bar-track">
-                    <div class="bar-fill bar-vanilla" data-width="100%"></div>
-                  </div>
-                </div>
-
-                <div class="bar-group">
-                  <div class="bar-label">
-                    <span>Sodium Engine (Uses Vanilla `zlib`)</span>
-                    <span>139.4 ms</span>
-                  </div>
-                  <div class="bar-track">
-                    <div class="bar-fill bar-sodium" data-width="100%"></div>
-                  </div>
-                </div>
-
-                <div class="bar-group">
-                  <div class="bar-label">
-                    <span style="color: #22d3ee;">RsGraphics (Multi-Threaded ZSTD Region Codec)</span>
-                    <span style="color: #22d3ee; font-weight: 800;">15.8 ms (8.8x Faster)</span>
-                  </div>
-                  <div class="bar-track">
-                    <div class="bar-fill bar-rsg" data-width="11.3%"></div>
-                  </div>
-                </div>
-              </div>
+            <div class="boot-log" id="bootLog" aria-live="polite">
+              <p class="muted">ネイティブ起動トレース（シミュレーション）を初期化中…</p>
             </div>
-          </div>
-
-          <!-- Tab 4: Culling Latency -->
-          <div id="culling-latency" class="tab-content">
-            <div class="bench-layout">
-              <div class="bench-text">
-                <h3>Sub-Millisecond Culling Execution</h3>
-                <p>
-                  A culling algorithm is only useful if making the visibility decision is faster than drawing the object. By utilizing SIMD BMI2 (`_pdep_u64` / `_pext_u64`) Morton ordering and flat 64-bit word bitmasks, RsGraphics evaluates 6,400 entity visibility states in just <strong>0.08 ms</strong> per frame.
-                </p>
-                <ul class="bench-features">
-                  <li><span class="check-icon">✓</span> <strong>BMI2 Morton Spatial Grid:</strong> Single-cycle Z-order coordinate indexing for ultra-fast spatial interval queries.</li>
-                  <li><span class="check-icon">✓</span> <strong>Halton (2,3) Subpixel Jitter:</strong> Eliminates false negatives from thin cracks in software occlusion pyramids.</li>
-                  <li><span class="check-icon">✓</span> <strong>Mesh Shader Independent:</strong> Works seamlessly on older consumer GPUs and integrated graphics.</li>
-                </ul>
-              </div>
-              <div class="chart-container">
-                <div class="chart-title">CPU Time Spent Culling 6,400 Entities (Lower is Better)</div>
-                
-                <div class="bar-group">
-                  <div class="bar-label">
-                    <span>Vanilla (No Culling Overhead)</span>
-                    <span>0.00 ms (Draws All 6,400)</span>
-                  </div>
-                  <div class="bar-track">
-                    <div class="bar-fill bar-vanilla" data-width="2%"></div>
-                  </div>
-                </div>
-
-                <div class="bar-group">
-                  <div class="bar-label">
-                    <span>Sodium Engine (Scalar Distance Dot Loop)</span>
-                    <span>0.15 ms (Draws ~2,200)</span>
-                  </div>
-                  <div class="bar-track">
-                    <div class="bar-fill bar-sodium" data-width="18.7%"></div>
-                  </div>
-                </div>
-
-                <div class="bar-group">
-                  <div class="bar-label">
-                    <span style="color: #22d3ee;">RsGraphics (SIMD RayPacket8 + Chunk Bucket Gate)</span>
-                    <span style="color: #22d3ee; font-weight: 800;">0.08 ms (Draws only ~580)</span>
-                  </div>
-                  <div class="bar-track">
-                    <div class="bar-fill bar-rsg" data-width="10%"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section: Other Ecosystem Plugins -->
-  <section id="ecosystem" class="ecosystem">
-    <div class="container">
-      <div class="section-header">
-        <h2>The Native Plugin Ecosystem</h2>
-        <p>Because Rsift is a clean native dynamic library loader, each aspect of the game can be modularized and accelerated by dedicated pure Rust plugins (`.dll` / `.so`).</p>
-      </div>
-
-      <div class="eco-grid">
-        <div class="eco-card">
-          <div>
-            <span class="eco-tag">Physics & AI Engine</span>
-            <h3>RsCalc (`rscalc.dll`)</h3>
-            <p>
-              Migrates server-side and client-side calculations out of the Java Virtual Machine. By transpiling vanilla class bytecodes into native CPU register instructions and executing entity AI loops, collision detection, and world ticks in off-heap memory, RsCalc completely removes Java interpreter friction.
-            </p>
-          </div>
-          <div class="eco-footer">
-            <span>● 100% SSA Transpilation Parity</span>
-            <span>● Zero-Allocation Tick Loop</span>
-          </div>
-        </div>
-
-        <div class="eco-card">
-          <div>
-            <span class="eco-tag">Video Capture Engine</span>
-            <h3>RsReplay (`rsreplay.dll`)</h3>
-            <p>
-              A deterministic, frame-locked synchronous MP4 video export engine built directly on top of `wgpu` off-screen framebuffers. Even when running under 4K/8K cinematic shader loads that render at 2 FPS in real time, RsReplay exports silky-smooth 60 FPS video files with zero dropped frames.
-            </p>
-          </div>
-          <div class="eco-footer">
-            <span>● 100% Synchronous Frame-Lock</span>
-            <span>● Zero Frame Drops</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section: Getting Started -->
-  <section id="get-started" class="steps-section">
-    <div class="container">
-      <div class="section-header">
-        <h2>Zero-Compile One-Click Setup</h2>
-        <p>No terminals, no visual studio toolchains, and no complex command lines required. Designed for immediate commercial-grade deployment on Windows x86_64.</p>
-      </div>
-
-      <div class="steps-grid">
-        <div class="step-card">
-          <div class="step-number">01</div>
-          <h3>Download Rsift Launcher</h3>
-          <p>
-            Download our pre-compiled standalone executable `rsift-setup.exe` (Version 1.0.0). No prerequisite installation of Java or Rust is needed—Rsift manages the entire dynamic JVM creation pipeline automatically.
-          </p>
-        </div>
-
-        <div class="step-card">
-          <div class="step-number">02</div>
-          <h3>Place Native Plugins</h3>
-          <p>
-            Copy the official native dynamic library plugins (`rsgraphics.dll`, `rscalc.dll`, and `rsreplay.dll`) into your Minecraft installation's `/mods` directory alongside your favorite resource packs.
-          </p>
-        </div>
-
-        <div class="step-card">
-          <div class="step-number">03</div>
-          <h3>Experience Bare-Metal Velocity</h3>
-          <p>
-            Click <strong>Launch Rsift</strong>. The host binary will instantly spawn the Minecraft 1.21.11 process under optimal core priority, binding native rendering and culling pipelines in under 15 milliseconds.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer>
-    <div class="container">
-      <div class="footer-content">
-        <div class="footer-brand">
-          <a href="#" class="brand">
-            <div class="brand-icon">R</div>
-            <span>RSIFT</span>
-          </a>
-          <p>
-            The world's first native-injection pure Rust mod loader and high-velocity modular engine for Minecraft 1.21.11.
-          </p>
-        </div>
-
-        <div class="footer-links">
-          <div class="link-col">
-            <h5>Loader Architecture</h5>
+            <div class="lab-foot"><span>SIMULATION ONLY</span><span>NO RUNTIME CONNECTION</span></div>
+          </article>
+          <article class="core-summary reveal">
+            <span class="eyebrow"><i></i> これで何が可能になるか</span>
             <ul>
-              <li><a href="#architecture">JNI Invocation API</a></li>
-              <li><a href="#architecture">SIMD Bytecode Scanner</a></li>
-              <li><a href="#architecture">bytemuck Zero-Copy Bridge</a></li>
+              <li><b>より速い起動経路</b><span>ネイティブ志向のクラスパッチパイプライン</span></li>
+              <li><b>きれいなヒープ境界</b><span>プラグインデータをオフヒープに保てる</span></li>
+              <li><b>モジュール型ネイティブプラグイン</b><span>.dll / .so 拡張レイヤー</span></li>
+              <li><b>明示的なリソース方針</b><span>JVM の外で制御戦略を決める</span></li>
+              <li><b>描画・計算のオフロード</b><span>RsGraphics / RsCalc への接続点</span></li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="bench-heading reveal">
+          <p class="eyebrow"><span></span> CORE / BENCHMARK SNAPSHOT</p>
+          <h2>数字で見る、<br>ローダーの軽さ。</h2>
+          <p>以下は Rsift コアとメモリ架け橋に関する、現時点のハイレベル計測スナップショットです。実行環境・構成・ワークロードにより結果は変動します。</p>
+        </div>
+        <div class="core-bench reveal">
+          <div class="bench-card wide">
+            <span>01 / MOD LOAD & CLASS PATCH</span>
+            <h3>ロード・クラスパッチ時間</h3>
+            <div class="compare-row">
+              <div>
+                <small>TRADITIONAL · FABRIC / KNOT / ASM</small>
+                <b>15s — 180s+</b>
+                <p>ヒープ上の構文解析、動的書き換え、GC。</p>
+              </div>
+              <div class="result">
+                <small>RSIFT CORE LOADER</small>
+                <b>≒ 15ms</b>
+                <p>ネイティブ並列パッチによる、知覚上の瞬間起動を目標にした設計。</p>
+              </div>
+            </div>
+          </div>
+          <div class="bench-card">
+            <span>02 / STUTTER GUARD</span>
+            <h3>151,492 <small>ops/sec</small></h3>
+            <p>4,096 件の一時バッファ処理を約 6.2µs で完了するマイクロベンチマーク。</p>
+          </div>
+          <div class="bench-card">
+            <span>03 / DATA BRIDGE</span>
+            <h3>0 <small>bytes copy</small></h3>
+            <p>ポインタとサイズ情報を渡す、オフヒープ直結転送の設計目標。</p>
+          </div>
+          <div class="bench-card full">
+            <span>04 / HEAP PROTECTION</span>
+            <h3>Java ヒープを、ゲームのために残す。</h3>
+            <p>Mod 側の設定・中間構造・データ転送をネイティブ側へ分離することで、Minecraft JVM のヒープ圧迫を抑え、より小さい -Xmx 設定でも運用しやすい構成を目指します。描画用メッシュや計算用スクラッチバッファも、可能ならブリッジ経由でオフヒープ側に寄せます。</p>
+          </div>
+        </div>
+
+        <div class="telemetry-grid reveal">
+          <article class="telemetry-card latency-card">
+            <div class="telemetry-head"><span>LIVE MODEL / PATCH LATENCY</span><b>≒ 15 ms</b></div>
+            <svg class="latency-graph" viewBox="0 0 540 160" preserveAspectRatio="none" role="img" aria-label="パッチレイテンシの推移">
+              <path class="gridline" d="M0 35H540M0 80H540M0 125H540"/>
+              <path class="area" d="M0 133 C38 120,51 127,82 108 S137 123,166 96 S227 106,258 77 S311 94,344 66 S399 75,430 48 S483 62,540 23 L540 160 L0 160Z"/>
+              <path class="trend" d="M0 133 C38 120,51 127,82 108 S137 123,166 96 S227 106,258 77 S311 94,344 66 S399 75,430 48 S483 62,540 23"/>
+            </svg>
+            <div class="graph-axis"><span>BOOT</span><span>HOOK</span><span>PATCH</span><span>READY</span></div>
+          </article>
+          <article class="telemetry-card allocation-card">
+            <div class="telemetry-head"><span>HEAP ALLOCATION PRESSURE</span><b>0 GC</b></div>
+            <div class="ring-layout">
+              <div class="ring">
+                <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><circle class="ring-progress" cx="60" cy="60" r="50"/></svg>
+                <strong>0<span>ms</span></strong>
+              </div>
+              <div>
+                <h3>オフヒープ・ブリッジ</h3>
+                <p>データ転送は JVM ヒープ境界の外に置いたままにします。</p>
+                <small><i></i> 目標: ブリッジ起因のポーズなし</small>
+              </div>
+            </div>
+          </article>
+          <article class="telemetry-card throughput-card">
+            <div class="telemetry-head"><span>BUFFER THROUGHPUT</span><b>151,492 ops/s</b></div>
+            <div class="vertical-bars">
+              <i style="--h:42%"></i><i style="--h:58%"></i><i style="--h:47%"></i><i style="--h:76%"></i>
+              <i style="--h:63%"></i><i style="--h:92%"></i><i style="--h:71%"></i><i style="--h:100%"></i>
+            </div>
+            <div class="graph-axis"><span>FRAME 01</span><span>FRAME 08</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="graphics" class="graphics">
+        <div class="shell graphics-layout">
+          <div class="graphics-title reveal">
+            <p class="eyebrow light"><span></span> 02 / OFFICIAL PLUGIN</p>
+            <h2>Rs<span>Graphics.</span></h2>
+            <p>Rsift 公式の描画・最適化レイヤー。重いエンティティ場面、地形メッシュ、領域 I/O をネイティブ側から再構築し、<strong>Sodium を超える</strong>ことを目標に開発しています。</p>
+            <a class="button inverted" href="#rsgraphics">RsGraphics の詳細 <b>→</b></a>
+          </div>
+          <div class="benchmark reveal">
+            <div class="benchmark-head">
+              <span>PERFORMANCE SNAPSHOT</span>
+              <div class="tabs" role="tablist">
+                <button class="tab active" data-tab="fps">FPS</button>
+                <button class="tab" data-tab="memory">MEM</button>
+                <button class="tab" data-tab="io">I/O</button>
+              </div>
+            </div>
+            <div class="bench-panel active" id="fps">
+              <h3>エンティティ密集場面</h3>
+              <p>6,400 体時の実効 FPS</p>
+              <div class="bars">
+                <div><label>Vanilla <b>187</b></label><i><em style="--w:30%"></em></i></div>
+                <div><label>Sodium <b>369</b></label><i><em style="--w:59%"></em></i></div>
+                <div class="highlight"><label>RsGraphics <b>621</b></label><i><em style="--w:100%"></em></i></div>
+              </div>
+            </div>
+            <div class="bench-panel" id="memory">
+              <h3>地形メッシュメモリ</h3>
+              <p>合計フットプリント（低いほど良い）</p>
+              <div class="bars">
+                <div><label>Vanilla <b>93.6 MB</b></label><i><em style="--w:100%"></em></i></div>
+                <div><label>Sodium <b>58.5 MB</b></label><i><em style="--w:62%"></em></i></div>
+                <div class="highlight"><label>RsGraphics <b>11.8 MB</b></label><i><em style="--w:13%"></em></i></div>
+              </div>
+            </div>
+            <div class="bench-panel" id="io">
+              <h3>リージョン自動保存</h3>
+              <p>36 チャンク所要時間（低いほど良い）</p>
+              <div class="bars">
+                <div><label>Vanilla <b>139.4 ms</b></label><i><em style="--w:100%"></em></i></div>
+                <div><label>Sodium <b>139.4 ms</b></label><i><em style="--w:100%"></em></i></div>
+                <div class="highlight"><label>RsGraphics <b>15.8 ms</b></label><i><em style="--w:12%"></em></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="plugins" class="section shell plugins">
+        <div class="section-intro reveal">
+          <p class="eyebrow"><span></span> 03 / ECOSYSTEM</p>
+          <h2>必要なものだけを<br>読み込む。</h2>
+          <p>描画・計算・録画を別々のネイティブプラグインとして分離。能力ごとに置き換え可能で、使わない機能を起動経路に載せません。</p>
+        </div>
+        <div class="plugin-grid">
+          <article class="plugin-card reveal">
+            <span class="plugin-kind">PHYSICS & AI</span>
+            <h3>RsCalc</h3>
+            <p>エンティティ AI、衝突判定、ワールド tick 向けのネイティブ計算レイヤー。ホットパスを JVM スカラー処理から切り離します。</p>
+            <footer>
+              <code>rscalc.dll</code>
+              <a class="plugin-link" href="#rscalc">LAB を開く ↗</a>
+              <span>01</span>
+            </footer>
+          </article>
+          <article class="plugin-card reveal">
+            <span class="plugin-kind">VIDEO CAPTURE</span>
+            <h3>RsReplay</h3>
+            <p>オフスクリーン Framebuffer を中心に据えた、フレームロック型の決定論的キャプチャエンジン。</p>
+            <footer>
+              <code>rsreplay.dll</code>
+              <span>02</span>
+            </footer>
+          </article>
+        </div>
+      </section>
+
+      <section id="install" class="install-section shell">
+        <div class="install-layout">
+          <div class="install-copy reveal">
+            <p class="eyebrow"><span></span> 04 / DOWNLOAD</p>
+            <h2>セットアップを減らし、<br>プレイを増やす。</h2>
+            <p>Minecraft のバージョンを選ぶと、そのバージョン向け最新ランチャー（<code>releases/{version}/latest.exe</code>）へのダウンロードが有効になります。現在公開中の対応バージョンは <strong>1.21.11</strong> です。</p>
+            <ul class="install-points">
+              <li><b>STEP 01</b><span>下のパネルで MC バージョンを選択します。</span></li>
+              <li><b>STEP 02</b><span>表示されたパスの <code>latest.exe</code> をダウンロードします。</span></li>
+              <li><b>STEP 03</b><span>ネイティブプラグイン（例: RsGraphics）を配置し、Rsift 経由で起動します。</span></li>
+              <li><b>NOTE</b><span>Mojang / Microsoft 非公式の実験的プロジェクトです。バックアップを取ったうえで利用してください。</span></li>
             </ul>
           </div>
-          <div class="link-col">
-            <h5>Official Plugins</h5>
-            <ul>
-              <li><a href="#rsgraphics">RsGraphics (`rsgraphics.dll`)</a></li>
-              <li><a href="#ecosystem">RsCalc (`rscalc.dll`)</a></li>
-              <li><a href="#ecosystem">RsReplay (`rsreplay.dll`)</a></li>
-            </ul>
-          </div>
-          <div class="link-col">
-            <h5>Product & Legal</h5>
-            <ul>
-              <li><a href="#get-started">Windows Binaries v1.0.0</a></li>
-              <li><a href="#">Commercial Licensing</a></li>
-              <li><a href="#">Security & Parity Audit</a></li>
-            </ul>
+
+          <div class="download-panel reveal" id="downloadPanel">
+            <div class="download-panel-head">
+              <h3>ランチャーを入手</h3>
+              <span>RSIFT DOWNLOAD</span>
+            </div>
+
+            <div class="version-grid" role="listbox" aria-label="Minecraft バージョン">
+              <button type="button" class="version-card active" data-version="1.21.11" aria-selected="true">
+                <em>AVAILABLE</em>
+                <strong>1.21.11</strong>
+                <p>現行サポート。Rsift コア / RsGraphics 向けビルド。</p>
+              </button>
+              <button type="button" class="version-card is-disabled" data-version="1.21.4" disabled aria-selected="false" title="近日公開">
+                <em>COMING SOON</em>
+                <strong>1.21.4</strong>
+                <p>準備中。選択できません。</p>
+              </button>
+            </div>
+
+            <div class="download-meta">
+              <div class="row"><span>SELECTED</span><b id="dlVersion">1.21.11</b></div>
+              <div class="row"><span>CHANNEL</span><b id="dlChannel">stable / latest</b></div>
+              <div class="row"><span>ARTIFACT</span><b id="dlArtifact">releases/1.21.11/latest.exe</b></div>
+              <div class="row"><span>PACKAGE</span><b id="dlPackage">Rsift Launcher + native host</b></div>
+            </div>
+
+            <div class="download-actions">
+              <a class="button" id="dlButton" href="releases/1.21.11/latest.exe" download>
+                1.21.11 をダウンロード <b>↓</b>
+              </a>
+              <a class="text-link" href="https://github.com/ifuto/arenaforall" target="_blank" rel="noopener">
+                GitHub でリリースを見る <b>↗</b>
+              </a>
+            </div>
+            <p class="download-note">ダウンロード URL はページ相対パス <code>releases/{mcversion}/latest.exe</code> です。この HTML がサイトルートにある場合、そのまま同階層の releases ディレクトリを参照します。</p>
           </div>
         </div>
-      </div>
+      </section>
+    </div>
 
-      <div class="footer-bottom">
-        <p class="disclaimer">
-          © 2026 Rsift Project. All rights reserved. Commercial / Official Distribution. Rsift is an independent native software product and is not an official Minecraft product. Not approved by, associated with, or endorsed by Mojang Studios or Microsoft Corporation.
-        </p>
-        <p style="font-family: var(--font-mono); color: #818cf8;">
-          BUILD: v1.0.0-PROD (MINECRAFT 1.21.11 DEDICATED)
-        </p>
+    <section class="spa-detail" id="page-rsgraphics" data-route="rsgraphics" hidden>
+      <div class="detail-top">
+        <p class="eyebrow"><span></span> 02 / OFFICIAL PLUGIN</p>
+        <a href="#top" class="detail-close">← 概要に戻る</a>
       </div>
+      <div class="detail-intro">
+        <h1>Rs<span>Graphics.</span></h1>
+        <p>従来の描画最適化が抱える構造的な限界を越えるため、描画パイプラインをネイティブ層から再設計する Rsift 公式プラグインです。目標は明確で、<strong>Sodium を超える</strong>こと。特に「見えていない動的オブジェクト」まで処理し続ける密集場面を主戦場にしています。</p>
+      </div>
+      <div class="detail-grid">
+        <article>
+          <span>01 / GPU-DRIVEN</span>
+          <h2>CPU の準備待ちを、描画の中心にしない。</h2>
+          <p>広大なワールドの形状と位置情報を GPU メモリに保持し、可視・不可視の判断を GPU 側へ寄せる構造を目指します。CPU が細かい命令を準備し続ける旧来のボトルネックを減らします。</p>
+        </article>
+        <article>
+          <span>02 / MULTI-LAYER CULLING</span>
+          <h2>見えないものは描かない。</h2>
+          <p>壁の裏、地下、複雑な建造物の陰にいる動的エンティティを多層空間スキャンで特定し、描画命令の手前で除外します。</p>
+        </article>
+        <article>
+          <span>03 / COMPACT WORLD DATA</span>
+          <h2>世界を軽く保持する。</h2>
+          <p>頂点・法線・テクスチャ情報を高密度化し、繰り返される形状を共有して VRAM と RAM の使用量を抑える設計です。</p>
+        </article>
+      </div>
+      <div class="detail-deep">
+        <p>従来の最適化は、地形の描画負荷を減らすことには長けていても、モブ・チェスト・看板・アイテムフレームのような動的オブジェクトを、壁や地下の奥にいても描画候補として残してしまう場面があります。RsGraphics は、描画を GPU へ送る一歩前に空間を読むことで、この「見えていないのに処理している」仕事を減らすことを目指します。</p>
+        <p>高密度なワールドでは、描画速度だけでなく VRAM とシステムメモリの使い方も重要です。頂点・法線・テクスチャ情報をコンパクトに保持し、同じ形状を共有することで、描画距離やリソースパックを使う場面でも余白を残す設計です。Rsift コアのオフヒープ・ブリッジと連携し、メッシュやカリング用データを Java ヒープに載せすぎないことを重視しています。</p>
+      </div>
+      <div class="detail-bench">
+        <div class="detail-bench-head">
+          <div>
+            <p class="eyebrow"><span></span> BENCHMARK SNAPSHOT</p>
+            <h2>重い場面を、<br>見える化する。</h2>
+          </div>
+          <p class="benchmark-disclaimer">※ 数値は Linux 環境における理論動作・シミュレーションを含むベンチマークです。実際の性能は OS、CPU、GPU、JVM 設定、Mod 構成、ワールド状況によって変動します。</p>
+        </div>
+        <div class="detail-chart">
+          <div><label>Vanilla / OptiFine <b>187 FPS</b></label><i><em style="--rw:30%"></em></i></div>
+          <div><label>Sodium <b>369 FPS</b></label><i><em style="--rw:59%"></em></i></div>
+          <div class="best"><label>RsGraphics / 6,400 entities <b>621 FPS</b></label><i><em style="--rw:100%"></em></i></div>
+        </div>
+        <div class="detail-stats">
+          <div><b>73.6%</b><span>hidden entities cut</span></div>
+          <div><b>11.8 MB</b><span>terrain mesh footprint</span></div>
+          <div><b>15.8 ms</b><span>36-chunk autosave</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="spa-detail" id="page-rscalc" data-route="rscalc" hidden>
+      <div class="detail-top">
+        <p class="eyebrow"><span></span> 03 / OFFICIAL PLUGIN</p>
+        <a href="#top" class="detail-close">← 概要に戻る</a>
+      </div>
+      <div class="detail-intro">
+        <h1>Rs<span>Calc.</span></h1>
+        <p>物理、AI、経路探索、レッドストーン、流体。Minecraft のホットパスをネイティブ計算レイヤーとして再設計する Rsift 公式プラグインです。RsGraphics が「見た目の余裕」を作るのに対し、RsCalc は「 tick の余裕」を作ります。</p>
+      </div>
+      <div class="detail-grid calc-grid">
+        <article>
+          <span>01 / COLLISION & PHYSICS</span>
+          <h2>連続衝突と高精度積分。</h2>
+          <p>SweptVoxelCollider と 3-Substep Euler/Verlet で、1,024 体規模の衝突・段差昇行・物理更新を扱います。</p>
+        </article>
+        <article>
+          <span>02 / AI & PATHFINDING</span>
+          <h2>群れ AI と階層型探索。</h2>
+          <p>FlockingAiEngine の全コア並列処理と、Hierarchical A* + JPS の長距離ルート導出を組み合わせます。</p>
+        </article>
+        <article>
+          <span>03 / WORLD SIMULATION</span>
+          <h2>ワイヤーと流体の計算。</h2>
+          <p>BitsetWireTopology と HydrodynamicEngine で、レッドストーン伝播と水・溶岩のセル計算を扱います。</p>
+        </article>
+      </div>
+      <div class="detail-deep">
+        <p>RsCalc が扱うのは、フレームごと・tick ごとに何度も呼ばれる「小さな計算の積み重ね」です。衝突、物理、AI、経路探索、配線、流体のような処理は、対象が増えるほど Java のスカラー処理とメモリ確保の負担が積み上がります。</p>
+        <p>そこで空間ハッシュ、階層型グラフ、64-bit ワード演算、全コア並列といった計算構造を用途ごとに使い分けます。目的は特定の数値を競うことだけではなく、重いワールドでも tick 処理の余白を保ち、ゲームの応答を安定させることです。</p>
+      </div>
+      <div class="detail-bench">
+        <div class="detail-bench-head">
+          <div>
+            <p class="eyebrow"><span></span> OFFICIAL BENCH HARNESS</p>
+            <h2>計算性能を<br>ひと目で。</h2>
+          </div>
+          <p class="benchmark-disclaimer">※ 公式ベンチハーネス <code>rscalc_bench.rs</code> を基にした Linux 理論値・マイクロベンチマークです。実際の結果は使用環境により変動します。</p>
+        </div>
+        <div class="calc-tabs">
+          <button class="calc-tab active" data-calc="speed">SPEEDUP</button>
+          <button class="calc-tab" data-calc="ops">OPS / SEC</button>
+          <button class="calc-tab" data-calc="time">TICK TIME</button>
+        </div>
+        <div class="calc-chart" id="calcChart"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell footer-inner">
+      <a class="brand" href="#top"><span class="brand-mark">R</span><span>rsift</span></a>
+      <p>Minecraft のためのネイティブファースト Mod ローディング。</p>
+      <p>© 2026 Rsift Project · Mojang / Microsoft とは関係ありません。</p>
     </div>
   </footer>
 
-  <script src="script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.bench-panel');
+  tabs.forEach(tab => tab.addEventListener('click', () => {
+    tabs.forEach(item => item.classList.remove('active'));
+    panels.forEach(panel => panel.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  }));
+
+  const header = document.querySelector('.site-header');
+  const menu = document.querySelector('.menu-toggle');
+  menu.addEventListener('click', () => {
+    const isOpen = header.classList.toggle('menu-open');
+    menu.setAttribute('aria-expanded', isOpen);
+  });
+  document.querySelectorAll('.mobile-nav a').forEach(link => link.addEventListener('click', () => {
+    header.classList.remove('menu-open');
+    menu.setAttribute('aria-expanded', 'false');
+  }));
+
+  const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+      observer.unobserve(entry.target);
+    }
+  }), { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(element => observer.observe(element));
+
+  /* Download panel: version -> releases/{mcversion}/latest.exe */
+  const releaseCatalog = {
+    '1.21.11': {
+      available: true,
+      channel: 'stable / latest',
+      package: 'Rsift Launcher + native host',
+      label: '1.21.11 をダウンロード'
+    }
+  };
+
+  const versionButtons = document.querySelectorAll('.version-card[data-version]');
+  const dlVersion = document.getElementById('dlVersion');
+  const dlChannel = document.getElementById('dlChannel');
+  const dlArtifact = document.getElementById('dlArtifact');
+  const dlPackage = document.getElementById('dlPackage');
+  const dlButton = document.getElementById('dlButton');
+
+  function selectVersion(version) {
+    const meta = releaseCatalog[version];
+    versionButtons.forEach(btn => {
+      const active = btn.dataset.version === version && meta?.available;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+
+    if (!meta || !meta.available) {
+      dlButton.classList.add('is-disabled');
+      dlButton.setAttribute('aria-disabled', 'true');
+      dlButton.removeAttribute('href');
+      dlButton.innerHTML = 'このバージョンは未公開 <b>—</b>';
+      return;
+    }
+
+    const artifact = `releases/${version}/latest.exe`;
+    dlVersion.textContent = version;
+    dlChannel.textContent = meta.channel;
+    dlArtifact.textContent = artifact;
+    dlPackage.textContent = meta.package;
+    dlButton.classList.remove('is-disabled');
+    dlButton.setAttribute('aria-disabled', 'false');
+    dlButton.href = artifact;
+    dlButton.setAttribute('download', '');
+    dlButton.innerHTML = `${meta.label} <b>↓</b>`;
+  }
+
+  versionButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.disabled || btn.classList.contains('is-disabled')) return;
+      selectVersion(btn.dataset.version);
+    });
+  });
+  selectVersion('1.21.11');
+});
+
+const coreData = {
+  master: {
+    tag: '01 / CONTROL',
+    title: '主従関係をネイティブ側へ。',
+    body: 'rsift.exe が先に起動し、JVM を管理対象として生成します。実行優先度やコア割り当ての方針を、Java ヒープの外から設計できる構成です。'
+  },
+  patch: {
+    tag: '02 / PATCH',
+    title: 'クラス定義の直前で、軽く処理する。',
+    body: 'JVMTI ClassFileLoadHook を使い、クラスが JVM に定義されるネイティブ層でパッチ処理を行う設計です。重い Java オブジェクトを経由しないことを目指します。'
+  },
+  bridge: {
+    tag: '03 / BRIDGE',
+    title: 'データではなく、参照を渡す。',
+    body: 'Direct buffer とロックフリーリングバッファを通じ、Rust と Java の間でアドレスとサイズ情報を共有するオフヒープ・ブリッジです。'
+  }
+};
+
+const detail = document.getElementById('archDetail');
+document.querySelectorAll('.arch-node').forEach(button => button.addEventListener('click', () => {
+  document.querySelectorAll('.arch-node').forEach(node => node.classList.remove('active'));
+  button.classList.add('active');
+  const item = coreData[button.dataset.core];
+  detail.innerHTML = `<span>${item.tag}</span><h3>${item.title}</h3><p>${item.body}</p>`;
+}));
+
+const bootLog = document.getElementById('bootLog');
+if (bootLog) {
+  const lines = [
+    '<span class="dim">[00:00:00.000] [BOOT]</span> rsift.exe native host initialized',
+    '<span class="dim">[00:00:00.003] [INFO]</span> JVMTI hook registration requested',
+    '<span class="ok">[00:00:00.008] [OK]</span> off-heap ring buffer allocated',
+    '<span class="ok">[00:00:00.012] [OK]</span> JVM child process bridge ready',
+    '<span class="warn">[00:00:00.015] [READY]</span> simulated boot trace complete'
+  ];
+  let traceIndex = 0;
+  const playTrace = () => {
+    bootLog.innerHTML = '';
+    traceIndex = 0;
+    const timer = setInterval(() => {
+      const row = document.createElement('p');
+      row.innerHTML = lines[traceIndex++];
+      bootLog.appendChild(row);
+      bootLog.scrollTop = bootLog.scrollHeight;
+      if (traceIndex === lines.length) {
+        clearInterval(timer);
+        setTimeout(playTrace, 5000);
+      }
+    }, 430);
+  };
+  playTrace();
+}
+
+const calcData = [
+  ['連続衝突', 'SweptVoxelCollider', 18.5, 1851, 55.3],
+  ['物理積分', 'Euler / Verlet', 12.8, 1280, 80],
+  ['群れAI', 'FlockingAiEngine', 24.2, 2420, 42.3],
+  ['経路探索', 'Hierarchical A* + JPS', 35, 3506, 7.3],
+  ['レッドストーン', 'BitsetWireTopology', 42.6, 4262, 96.1],
+  ['流体力学', 'HydrodynamicEngine', 16.4, 1638, 250]
+];
+
+const homeContent = document.getElementById('homeContent');
+const detailPages = document.querySelectorAll('.spa-detail');
+
+function drawCalc(mode = 'speed') {
+  const chart = document.getElementById('calcChart');
+  if (!chart) return;
+  const values = calcData.map(x => mode === 'speed' ? x[2] : mode === 'ops' ? x[3] : x[4]);
+  const max = Math.max(...values);
+  chart.innerHTML = calcData.map((x, i) => {
+    const value = values[i];
+    const label = mode === 'speed' ? `× ${value}` : mode === 'ops' ? `${value.toLocaleString()}万` : `${value} µs`;
+    const width = mode === 'time' ? Math.max(4, value / max * 100) : value / max * 100;
+    return `<div class="calc-row"><label>${x[0]}<small>${x[1]}</small></label><i><em style="width:${width}%"></em></i><b>${label}</b></div>`;
+  }).join('');
+}
+
+function renderRoute() {
+  const route = location.hash.slice(1);
+  const page = [...detailPages].find(item => item.dataset.route === route);
+  if (page) {
+    homeContent.hidden = true;
+    detailPages.forEach(item => {
+      item.hidden = item !== page;
+      item.classList.remove('route-enter');
+    });
+    requestAnimationFrame(() => page.classList.add('route-enter'));
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    if (route === 'rscalc') drawCalc();
+  } else {
+    detailPages.forEach(item => {
+      item.hidden = true;
+      item.classList.remove('route-enter');
+    });
+    homeContent.hidden = false;
+    homeContent.classList.remove('home-route-enter');
+    requestAnimationFrame(() => homeContent.classList.add('home-route-enter'));
+  }
+}
+
+addEventListener('hashchange', renderRoute);
+renderRoute();
+document.querySelectorAll('.calc-tab').forEach(button => button.addEventListener('click', () => {
+  document.querySelectorAll('.calc-tab').forEach(item => item.classList.remove('active'));
+  button.classList.add('active');
+  drawCalc(button.dataset.calc);
+}));
+</script>
 </body>
 </html>
